@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\JarInputController;
 use App\Http\Controllers\ParkingLotController;
+use App\Http\Controllers\TestingpdfController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserFormController;
 use Illuminate\Support\Facades\Route;
@@ -97,47 +98,13 @@ Route::group([
 });
 
 /**
- * MERCHANT MASTER CONTROLLER
+ * TESTING
  */
 Route::group([
     'prefix' => $url,
     'middleware' => 'jwt.verify'
 ], function ($router) {
-    $router->get('/merchantmaster', [MerchantMasterController::class, 'index']);
-    $router->get('/merchantmaster/datatable', [MerchantMasterController::class, 'getAllDataTable']);
-    $router->get('/merchantmaster/{guid}', [MerchantMasterController::class, 'getData']);
-    $router->post('/merchantmaster', [MerchantMasterController::class, 'insertData']);
-    $router->put('/merchantmaster', [MerchantMasterController::class, 'updateData']);
-    $router->delete('/merchantmaster/{guid}', [MerchantMasterController::class, 'deleteData']);
+    $router->post('/testing', [TestingpdfController::class, 'handleUpload']);
 });
 
-/**
- * MERCHANT LOCATION CONTROLLER
- */
-Route::group([
-    'prefix' => $url,
-    'middleware' => 'jwt.verify'
-], function ($router) {
-    $router->get('/merchantlocation', [MerchantLocationController::class, 'index']);
-    $router->get('/merchantlocation/datatable', [MerchantLocationController::class, 'getAllDataTable']);
-    $router->get('/merchantlocation/{guid}', [MerchantLocationController::class, 'getData']);
-    $router->post('/merchantlocation', [MerchantLocationController::class, 'insertData']);
-    $router->put('/merchantlocation', [MerchantLocationController::class, 'updateData']);
-    $router->delete('/merchantlocation/{guid}', [MerchantLocationController::class, 'deleteData']);
-});
-
-/**
- * PARKING LOT CONTROLLER
- */
-Route::group([
-    'prefix' => $url,
-    'middleware' => 'jwt.verify'
-], function ($router) {
-    $router->get('/parkinglot', [ParkingLotController::class, 'index']);
-    $router->get('/parkinglot/datatable', [ParkingLotController::class, 'getAllDataTable']);
-    $router->get('/parkinglot/{guid}', [ParkingLotController::class, 'getData']);
-    $router->post('/parkinglot', [ParkingLotController::class, 'insertData']);
-    $router->put('/parkinglot', [ParkingLotController::class, 'updateData']);
-    $router->delete('/parkinglot/{guid}', [ParkingLotController::class, 'deleteData']);
-});
 

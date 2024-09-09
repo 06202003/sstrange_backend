@@ -203,6 +203,8 @@ class JarInputController extends Controller
             'expired' => 'nullable|date',
         ]);
 
+
+
         if ($validator->fails()) {
             return response()->json(['error' => $validator->errors()->first()], 422);
         }
@@ -218,35 +220,26 @@ class JarInputController extends Controller
                 $file->move($zipFileDirectory, $originalFileName);
                 Log::info('Zip file saved to: ' . $zipFilePath);
 
-                // Input template directory path
-                $inputTemplatePath = $request->input('template_directory_path');
-
-                // Create the corresponding directory in public storage
-                $lastTemplateDirectory = basename($inputTemplatePath);
-                $publicTemplatePath = storage_path('app/public/uploads/' . $lastTemplateDirectory);
+                if($request->hasFile('ai_generated_sample')){
+                    // Input AI directory path
+                    $inputAiPath = $request->input('ai_generated_sample');
         
-                // Copy all contents from input directory to public storage directory
-                if (File::copyDirectory($inputTemplatePath, $publicTemplatePath)) {
-                    Log::info('Directory copied to: ' . $publicTemplatePath);
-                } else {
-                    Log::error('Failed to copy directory to: ' . $publicTemplatePath);
-                    return response()->json(['error' => 'Failed to copy directory'], 500);
+                    // Create the corresponding directory in public storage
+                    $lastAIDirectory = basename($inputAiPath);
+                    $publicAIPath = storage_path('app/public/uploads/' . $lastAIDirectory);
+            
+                    // Copy all contents from input directory to public storage directory
+                    if (File::copyDirectory($inputAiPath, $publicAIPath)) {
+                        Log::info('Directory copied to: ' . $publicAIPath);
+                    } else {
+                        Log::error('Failed to copy directory to: ' . $publicAIPath);
+                        return response()->json(['error' => 'Failed to copy directory'], 500);
+                    }
+                }else{
+                    $publicAIPath = "none";
                 }
 
-                 // Input AI directory path
-                 $inputAiPath = $request->input('ai_generated_sample');
-        
-                 // Create the corresponding directory in public storage
-                 $lastAIDirectory = basename($inputAiPath);
-                 $publicAIPath = storage_path('app/public/uploads/' . $lastAIDirectory);
-         
-                 // Copy all contents from input directory to public storage directory
-                 if (File::copyDirectory($inputAiPath, $publicAIPath)) {
-                     Log::info('Directory copied to: ' . $publicAIPath);
-                 } else {
-                     Log::error('Failed to copy directory to: ' . $publicAIPath);
-                     return response()->json(['error' => 'Failed to copy directory'], 500);
-                 }
+
 
                 $expirationDate = now()->addDays(14);
 
@@ -261,7 +254,7 @@ class JarInputController extends Controller
                     'dissim_threshold' => $request->input('dissim_threshold'),
                     'maximum_reported_submission_pairs' => $request->input('maximum_reported_submission_pairs'),
                     'minimum_matching_length' => $request->input('minimum_matching_length'),
-                    'template_directory_path' => $publicTemplatePath,
+                    'template_directory_path' => $request->input('template_directory_path'),
                     'common_content' => $request->input('common_content'),
                     'ai_generated_sample' => $publicAIPath,
                     'similarity_measurement' => $request->input('similarity_measurement'),
@@ -290,7 +283,7 @@ class JarInputController extends Controller
                     $data->minimum_matching_length,
                     $data->maximum_reported_submission_pairs,
                     $data->template_directory_path ?? "none",
-                    $data->common_content,
+                    $data->common_content ?? "true",
                     $data->similarity_measurement,
                     $data->resource_path,
                     $data->dissim_threshold,
@@ -336,21 +329,7 @@ class JarInputController extends Controller
                     return response()->json(['error' => 'Failed to copy directory'], 500);
                 }
 
-                // Input template directory path
-                $inputTemplatePath = $request->input('template_directory_path');
-
-                // Create the corresponding directory in public storage
-                $lastTemplateDirectory = basename($inputTemplatePath);
-                $publicTemplatePath = storage_path('app/public/uploads/' . $lastTemplateDirectory);
-        
-                // Copy all contents from input directory to public storage directory
-                if (File::copyDirectory($inputTemplatePath, $publicTemplatePath)) {
-                    Log::info('Directory copied to: ' . $publicTemplatePath);
-                } else {
-                    Log::error('Failed to copy directory to: ' . $publicTemplatePath);
-                    return response()->json(['error' => 'Failed to copy directory'], 500);
-                }
-
+                if($request->hasFile('ai_generated_sample')){
                     // Input AI directory path
                     $inputAiPath = $request->input('ai_generated_sample');
         
@@ -365,6 +344,9 @@ class JarInputController extends Controller
                         Log::error('Failed to copy directory to: ' . $publicAIPath);
                         return response()->json(['error' => 'Failed to copy directory'], 500);
                     }
+                }else{
+                    $publicAIPath = "none";
+                }
 
                 $expirationDate = now()->addDays(14);
         
@@ -379,7 +361,7 @@ class JarInputController extends Controller
                     'dissim_threshold' => $request->input('dissim_threshold'),
                     'maximum_reported_submission_pairs' => $request->input('maximum_reported_submission_pairs'),
                     'minimum_matching_length' => $request->input('minimum_matching_length'),
-                    'template_directory_path' => $publicTemplatePath,
+                    'template_directory_path' => $request->input('template_directory_path'),
                     'common_content' => $request->input('common_content'),
                     'ai_generated_sample' => $publicAIPath,
                     'similarity_measurement' => $request->input('similarity_measurement'),

@@ -1,303 +1,496 @@
 <html>
-	<head>
-		<title> Similarity Results for @filepath </title>
-		<link rel="icon" href="strange_html_layout_additional_files/icon.png">
-		<script>
-			// sort table content. Copied and modified from https://www.w3schools.com/howto/howto_js_sort_table.asp
-			function sortTable(n, tableId, isNumber, tableContainerId) {
-				var table, rows, switching, i, x, y, shouldSwitch, dir, switchcount = 0;
-				table = document.getElementById(tableId);
-				switching = true;
-				// Set the sorting direction to ascending:
-				dir = "asc";
-				/* Make a loop that will continue until
+    <head>
+        <title>Similarity Results for @filepath</title>
+        <link
+            rel="icon"
+            href="../strange_html_layout_additional_files/icon.png"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+        />
+        <link
+            rel="stylesheet"
+            href="https://cdn.datatables.net/2.1.3/css/dataTables.dataTables.css"
+        />
+        <script>
+            // sort table content. Copied and modified from https://www.w3schools.com/howto/howto_js_sort_table.asp
+            function sortTable(n, tableId, isNumber, tableContainerId) {
+                var table,
+                    rows,
+                    switching,
+                    i,
+                    x,
+                    y,
+                    shouldSwitch,
+                    dir,
+                    switchcount = 0;
+                table = document.getElementById(tableId);
+                switching = true;
+                // Set the sorting direction to ascending:
+                dir = "asc";
+                /* Make a loop that will continue until
 				no switching has been done: */
-				while (switching) {
-					// Start by saying: no switching is done:
-					switching = false;
-					rows = table.rows;
-					/* Loop through all table rows */
-					for (i = 0; i < (rows.length - 1); i++) {
-						// Start by saying there should be no switching:
-						shouldSwitch = false;
-						/* Get the two elements you want to compare,
+                while (switching) {
+                    // Start by saying: no switching is done:
+                    switching = false;
+                    rows = table.rows;
+                    /* Loop through all table rows */
+                    for (i = 0; i < rows.length - 1; i++) {
+                        // Start by saying there should be no switching:
+                        shouldSwitch = false;
+                        /* Get the two elements you want to compare,
 						one from current row and one from the next: */
-						x = rows[i].getElementsByTagName("TD")[n];
-						y = rows[i + 1].getElementsByTagName("TD")[n];
-						if(n==0){
-							/*
-							* the column content is encapsulated with a link and can provide confusing result
-							* as the <A> tag is considered in comparison
-							*/
-							x = x.getElementsByTagName("A")[0];
-							y = y.getElementsByTagName("A")[0];
-						}
-						/* Check if the two rows should switch place,
+                        x = rows[i].getElementsByTagName("TD")[n];
+                        y = rows[i + 1].getElementsByTagName("TD")[n];
+                        if (n == 0) {
+                            /*
+                             * the column content is encapsulated with a link and can provide confusing result
+                             * as the <A> tag is considered in comparison
+                             */
+                            x = x.getElementsByTagName("A")[0];
+                            y = y.getElementsByTagName("A")[0];
+                        }
+                        /* Check if the two rows should switch place,
 						based on the direction, asc or desc: */
-						if (dir == "asc") {
-							if(isNumber == true){
-								numx = Number(x.innerHTML.split(" ")[0]);
-								numy = Number(y.innerHTML.split(" ")[0]);
-								if (numx > numy ){
-									// If so, mark as a switch and break the loop:
-									shouldSwitch = true;
-									break;
-								}
-							}else{
-								if (x.innerHTML.toLowerCase() > y.innerHTML.toLowerCase()) {
-									// If so, mark as a switch and break the loop:
-									shouldSwitch = true;
-									break;
-								}
-							}
-						} else if (dir == "desc") {
-							if(isNumber == true){
-								numx = Number(x.innerHTML.split(" ")[0]);
-								numy = Number(y.innerHTML.split(" ")[0]);
-								if (numx < numy ){
-									// If so, mark as a switch and break the loop:
-									shouldSwitch = true;
-									break;
-								}
-							}else{
-								if (x.innerHTML.toLowerCase() < y.innerHTML.toLowerCase()) {
-									// If so, mark as a switch and break the loop:
-									shouldSwitch = true;
-									break;
-								}
-							}
-						}
-					}
-					if (shouldSwitch) {
-						/* If a switch has been marked, make the switch
+                        if (dir == "asc") {
+                            if (isNumber == true) {
+                                numx = Number(x.innerHTML.split(" ")[0]);
+                                numy = Number(y.innerHTML.split(" ")[0]);
+                                if (numx > numy) {
+                                    // If so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            } else {
+                                if (
+                                    x.innerHTML.toLowerCase() >
+                                    y.innerHTML.toLowerCase()
+                                ) {
+                                    // If so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            }
+                        } else if (dir == "desc") {
+                            if (isNumber == true) {
+                                numx = Number(x.innerHTML.split(" ")[0]);
+                                numy = Number(y.innerHTML.split(" ")[0]);
+                                if (numx < numy) {
+                                    // If so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            } else {
+                                if (
+                                    x.innerHTML.toLowerCase() <
+                                    y.innerHTML.toLowerCase()
+                                ) {
+                                    // If so, mark as a switch and break the loop:
+                                    shouldSwitch = true;
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                    if (shouldSwitch) {
+                        /* If a switch has been marked, make the switch
 						and mark that a switch has been done: */
-						rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
-						switching = true;
-						// Each time a switch is done, increase this count by 1:
-						switchcount ++;
-					} else {
-						/* If no switching has been done AND the direction is "asc",
+                        rows[i].parentNode.insertBefore(rows[i + 1], rows[i]);
+                        switching = true;
+                        // Each time a switch is done, increase this count by 1:
+                        switchcount++;
+                    } else {
+                        /* If no switching has been done AND the direction is "asc",
 						set the direction to "desc" and run the while loop again. */
-						if (switchcount == 0 && dir == "asc") {
-							dir = "desc";
-							switching = true;
-						}
-					}
-				}
-				recolorTableContent(tableId);
-				recolorCodeFragment(previousRowId,"rgba(60,200,246,1)");
-			}
+                        if (switchcount == 0 && dir == "asc") {
+                            dir = "desc";
+                            switching = true;
+                        }
+                    }
+                }
+                recolorTableContent(tableId);
+                recolorCodeFragment(previousRowId, "rgba(60,200,246,1)");
+            }
 
-			function recolorTableContent(tableId){
-				table = document.getElementById(tableId);
-				rows = table.rows;
-				/* Loop through all table rows */
-				for (i = 0; i < rows.length; i++) {
-					if(i%2 == 0){
-						rows[i].style.backgroundColor = "rgba(255,255,255,1)";
-					}else {
-						rows[i].style.backgroundColor = "#eeeeee";
-					}
-				}
-			}
+            function recolorTableContent(tableId) {
+                table = document.getElementById(tableId);
+                rows = table.rows;
+                /* Loop through all table rows */
+                for (i = 0; i < rows.length; i++) {
+                    if (i % 2 == 0) {
+                        rows[i].style.backgroundColor = "rgba(255,255,255,1)";
+                    } else {
+                        rows[i].style.backgroundColor = "#eeeeee";
+                    }
+                }
+            }
 
-			var previousRowId = null;
-			function selectRow(id, tableId){
-				if(previousRowId != null){
-					// for header table, recolor the contents
-					recolorTableContent(tableId);
-				}
-				// for header table, recolor the row
-				recolorCodeFragment(id,"rgba(60,200,246,1)");
-				previousRowId= id;
-			}
+            var previousRowId = null;
+            function selectRow(id, tableId) {
+                if (previousRowId != null) {
+                    // for header table, recolor the contents
+                    recolorTableContent(tableId);
+                }
+                // for header table, recolor the row
+                recolorCodeFragment(id, "rgba(60,200,246,1)");
+                previousRowId = id;
+            }
 
-			// recolor a code fragment with its following rows
-			function recolorCodeFragment(id, defaultColour){
-				document.getElementById(id).style.backgroundColor = defaultColour;
-			}
-		</script>
-		<style>
-			body{
-				font-family: "Times New Roman", Times, serif;
-				font-size: 14px;
-			}
-			a{
-				text-decoration: none;
-				color: black;
-			}
+            // recolor a code fragment with its following rows
+            function recolorCodeFragment(id, defaultColour) {
+                document.getElementById(id).style.backgroundColor =
+                    defaultColour;
+            }
+        </script>
+        <style>
+            body {
+                font-family: "Montserrat", sans-serif;
+                font-size: 14px;
+            }
+            a {
+                text-decoration: none;
+                color: black;
+            }
 
-			/* for table, copied and modified from https://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_intro*/
-			div.tablecontainer{
-				float:left;
-				width: 100%;
-			}
-			table {
-				width:100%;
-			  font-family: inherit;
-				font-size: inherit;
-			  border-collapse: collapse;
-			  table-layout:fixed
-			}
-			td, th {
-			  border: 1px solid #dddddd;
-			  text-align: center;
-			  vertical-align: top;
-			}
-			td{
-				width:15%;
-				padding: 2px;
-			}
-			th{
-				border-top: none;
-				background-color: rgba(0,140,186,1);
-				color: white;
-				padding: 2px 8px;
-				text-align: center;
-				text-decoration: none;
-				font-weight: normal;
-				width:15%;
-				height:100%;
-				cursor: pointer;
-			}
-			tr:nth-child(even) {
-			  background-color: #eeeeee;
-			}
-			tr{
-				cursor: pointer;
-			}
-			
-			/* copied and modified from https://www.w3schools.com/css/css3_buttons.asp */
-			button {
-				background-color: rgba(0,140,186,1);
-				border: none;
-				color: white;
-				padding: 2px 4px;
-				text-align: center;
-				text-decoration: none;
-				display: inline-block;
-				cursor: pointer;
-			}
+            /* for table, copied and modified from https://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_intro*/
+            div.tablecontainer {
+                float: left;
+                width: 100%;
+            }
+            table {
+                width: 100%;
+                font-family: inherit;
+                font-size: inherit;
+                border-collapse: collapse;
+                table-layout: fixed;
+            }
+            td,
+            th {
+                border: 1px solid #dddddd;
+                text-align: center;
+                vertical-align: top;
+            }
+            td {
+                width: 15%;
+                padding: 2px;
+            }
+            th {
+                border-top: none;
+                background-color: rgba(0, 140, 186, 1);
+                color: white;
+                padding: 2px 8px;
+                text-align: center;
+                text-decoration: none;
+                font-weight: normal;
+                width: 15%;
+                height: 100%;
+                cursor: pointer;
+            }
+            tr:nth-child(even) {
+                background-color: #eeeeee;
+            }
+            tr {
+                cursor: pointer;
+            }
 
-			div.column{
-				float:left;
-				width:49%;
-				margin-right:1%;
-			}
-			div.info{
-				float:left;
-				width: 100%;
-				margin-right:1%;
-				margin-bottom: 10px;
-				word-wrap: break-word;
-			}
-			div.title, div.infotitle{
-				float:left;
-				font-size: 14px;
-				font-weight: bold;
-				margin-right:1%;
-				margin-bottom:2px;
-			}
-			div.title{
-				margin-left:3%;
-				width:20%;
-			}
-			div.infotitle{
-				width:100%;
-				height:3%;
-			}
-			div.content{
-				float:left;
-				font-size: 14px;
-				width:76%;
-				margin-bottom:2px;
-				
-			}
-			
-			div.image{
-				float:left;
-				width:15%;
-			}
-			img.sortpic{
-				float:right;
-				width:12px;
-				margin-bottom:0px;
-			}
-			
-			div.embedimage{
-				float:left;
-				width:100%;
-				margin-left:3%;
-			}
-			div.embedx{
-				float:left;
-				font-size:24px;
-				margin-top:10px;
-				margin-left:5px;
-				margin-right:5px;
-			}
-			img.embedimage{
-				float:left;
-				height:50px;
-			}
-			div.embedmeta{
-				width:85%;
-				float:left;
-			}
-			td.first{
-				text-align:left;
-				word-wrap: break-word;
-			}
+            /* copied and modified from https://www.w3schools.com/css/css3_buttons.asp */
+            button {
+                background-color: rgba(0, 140, 186, 1);
+                border: none;
+                color: white;
+                padding: 2px 4px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+            }
 
-		</style>
-	</head>
-	<body>
-		<div class="info">
-			@logo
-			<div class="embedmeta">
-				<div class="title">Assessment dir</div>
-				<div class="content"><b>:</b> @filepath</div>
-				<div class="title">Similarity</div>
-				<div class="content"><b>:</b> @threshold %</div>
-				<div class="title">Uniqueness</div>
-				<div class="content"><b>:</b> @disthreshold %</div>
-			</div>
-		</div>
-		<div class="info">
-			<div class="infotitle">Notes:</div>
-			@explanation
-		</div>
-		<div class="column">
-			<div class="infotitle"> Overly-unique subs or AI-similar subs:</div>
-			<div class="tablecontainer">
-				<table class="header">
-					<tr>
-						<th onclick="sortTable(0,'sumtablecontentdissimai',false, 'sumcontainerdissimai')">Submission <img class="sortpic" src="strange_html_layout_additional_files/sort icon.png" alt="logo"></th>
-						<th onclick="sortTable(1,'sumtablecontentdissimai',true, 'sumcontainerdissimai')">Uniqueness<img class="sortpic" src="strange_html_layout_additional_files/sort icon.png" alt="logo"></th>
-						<th onclick="sortTable(2,'sumtablecontentdissimai',true, 'sumcontainerdissimai')">AI Sim<img class="sortpic" src="strange_html_layout_additional_files/sort icon.png" alt="logo"></th>
-						<th> Action </th>
-					</tr>
-				</table>
-				<table id="sumtablecontentdissimai">
-@dissimaitablecontent
-				</table>
-			</div>
-		</div>
-		<div class="column">
-			<div class="infotitle"> High similarities across submissions:</div>
-			<div class="tablecontainer">
-				<table class="header">
-					<tr>
-						<th onclick="sortTable(0,'sumtablecontent',false, 'sumcontainer')">Pair <img class="sortpic" src="strange_html_layout_additional_files/sort icon.png" alt="logo"></th>
-						<th onclick="sortTable(1,'sumtablecontent',true, 'sumcontainer')">Standard Similarity<img class="sortpic" src="strange_html_layout_additional_files/sort icon.png" alt="logo"></th>
-						<th onclick="sortTable(2,'sumtablecontent',true, 'sumcontainer')">Sensitive Similarity<img class="sortpic" src="strange_html_layout_additional_files/sort icon.png" alt="logo"></th>
-						<th> Action </th>
-					</tr>
-				</table>
-				<table id="sumtablecontent">
-@tablecontent
-				</table>
-			</div>
-		</div>
-	</body>
+            div.column {
+                float: left;
+                width: 49%;
+                margin-right: 1%;
+            }
+            div.info {
+                float: left;
+                width: 100%;
+                margin-right: 1%;
+                margin-bottom: 10px;
+                word-wrap: break-word;
+            }
+            div.title,
+            div.infotitle {
+                float: left;
+                font-size: 14px;
+                font-weight: bold;
+                margin-right: 1%;
+                margin-bottom: 2px;
+            }
+            div.title {
+                margin-left: 3%;
+                width: 20%;
+            }
+            div.infotitle {
+                width: 100%;
+                height: 3%;
+            }
+            div.content {
+                float: left;
+                font-size: 14px;
+                width: 76%;
+                margin-bottom: 2px;
+            }
+
+            div.image {
+                float: left;
+                width: 15%;
+            }
+            img.sortpic {
+                float: right;
+                width: 12px;
+                margin-bottom: 0px;
+            }
+
+            div.embedimage {
+                float: left;
+                width: 100%;
+                margin-left: 3%;
+            }
+            div.embedx {
+                float: left;
+                font-size: 24px;
+                margin-top: 10px;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+            img.embedimage {
+                float: left;
+                height: 50px;
+            }
+            div.embedmeta {
+                width: 85%;
+                float: left;
+            }
+            td.first {
+                text-align: left;
+                word-wrap: break-word;
+            }
+        </style>
+    </head>
+    <body>
+        <nav class="navbar navbar-expand-lg bg-body-tertiary">
+            <div class="container-fluid">
+                <div class="row d-flex w-100 align-items-center">
+                    <div class="col-md-1">
+                        <a class="navbar-brand" href="#">
+                            <img
+                                src="../strange_html_layout_additional_files/logo.png"
+                                alt="logo STRANGE"
+                                width="100"
+                                height="50"
+                                class="d-inline-block align-text-top"
+                            />
+                        </a>
+                    </div>
+                    <div class="col-md-11 d-flex align-items-center">
+                        <div class="embedmeta">
+                            <div class="title">Assessment dir</div>
+                            <div class="content"><b>:</b> @filepath</div>
+                            <div class="title">Similarity</div>
+                            <div class="content"><b>:</b> @threshold %</div>
+                            <div class="title">Uniqueness</div>
+                            <div class="content"><b>:</b> @disthreshold %</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </nav>
+        <div class="container-fluid">
+            <div class="row d-flex justify-content-center">
+                <!-- Kolom pertama -->
+                <div class="col-md-6">
+                    <div class="">
+                        <div class="infotitle">
+                            Overly-unique subs or AI-similar subs:
+                        </div>
+                        <div class="tablecontainer">
+                            <table id="sumtablecontentdissimai" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Submission</th>
+                                        <th>Uniqueness</th>
+                                        <th>AI Sim</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @dissimaitablecontent
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <!-- Kolom kedua -->
+                <div class="col-md-6">
+                    <div class="">
+                        <div class="infotitle">
+                            High similarities across submissions:
+                        </div>
+                        <div class="tablecontainer">
+                            <table id="sumtablecontent" class="display">
+                                <thead>
+                                    <tr>
+                                        <th>Pair</th>
+                                        <th>Standard Similarity</th>
+                                        <th>Sensitive Similarity</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @tablecontent
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- <div class="info">
+            <div class="embedimage" style="width: 15%; margin-left: 0px">
+                <img
+                    class="embedimage"
+                    src="../strange_html_layout_additional_files/logo.png"
+                    alt="logo STRANGE"
+                />
+            </div>
+            <div class="embedmeta">
+                <div class="title">Assessment dir</div>
+                <div class="content"><b>:</b> @filepath</div>
+                <div class="title">Similarity</div>
+                <div class="content"><b>:</b> @threshold %</div>
+                <div class="title">Uniqueness</div>
+                <div class="content"><b>:</b> @disthreshold %</div>
+            </div>
+        </div> -->
+        <div class="info">
+            <div class="infotitle">Notes:</div>
+            @explanation
+        </div>
+        <!-- <div class="column">
+            <div class="infotitle">Overly-unique subs or AI-similar subs:</div>
+            <div class="tablecontainer">
+                <table class="header">
+                    <tr>
+                        <th
+                            onclick="sortTable(0,'sumtablecontentdissimai',false, 'sumcontainerdissimai')"
+                        >
+                            Submission
+                            <img
+                                class="sortpic"
+                                src="../strange_html_layout_additional_files/sort icon.png"
+                                alt="logo"
+                            />
+                        </th>
+                        <th
+                            onclick="sortTable(1,'sumtablecontentdissimai',true, 'sumcontainerdissimai')"
+                        >
+                            Uniqueness<img
+                                class="sortpic"
+                                src="../strange_html_layout_additional_files/sort icon.png"
+                                alt="logo"
+                            />
+                        </th>
+                        <th
+                            onclick="sortTable(2,'sumtablecontentdissimai',true, 'sumcontainerdissimai')"
+                        >
+                            AI Sim<img
+                                class="sortpic"
+                                src="../strange_html_layout_additional_files/sort icon.png"
+                                alt="logo"
+                            />
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                </table>
+                <table id="sumtablecontentdissimai">
+                    @dissimaitablecontent
+                </table>
+            </div>
+        </div>-->
+        <!-- <div class="column">
+            <div class="infotitle">High similarities across submissions:</div>
+            <div class="tablecontainer">
+                <table class="header">
+                    <tr>
+                        <th
+                            onclick="sortTable(0,'sumtablecontent',false, 'sumcontainer')"
+                        >
+                            Pair
+                            <img
+                                class="sortpic"
+                                src="../strange_html_layout_additional_files/sort icon.png"
+                                alt="logo"
+                            />
+                        </th>
+                        <th
+                            onclick="sortTable(1,'sumtablecontent',true, 'sumcontainer')"
+                        >
+                            Standard Similarity<img
+                                class="sortpic"
+                                src="../strange_html_layout_additional_files/sort icon.png"
+                                alt="logo"
+                            />
+                        </th>
+                        <th
+                            onclick="sortTable(2,'sumtablecontent',true, 'sumcontainer')"
+                        >
+                            Sensitive Similarity<img
+                                class="sortpic"
+                                src="../strange_html_layout_additional_files/sort icon.png"
+                                alt="logo"
+                            />
+                        </th>
+                        <th>Action</th>
+                    </tr>
+                </table>
+                <table id="sumtablecontent">
+                    @tablecontent
+                </table>
+            </div>
+        </div>  -->
+        <script>
+            $(document).ready(function () {
+                $("#sumtablecontentdissimai").DataTable({
+                    columnDefs: [
+                        { orderable: false, targets: 3 }, // Kolom ke-4 (Action) tidak dapat diurutkan
+                    ],
+                });
+                $("#sumtablecontent").DataTable({
+                    columnDefs: [
+                        { orderable: false, targets: 3 }, // Kolom ke-4 (Action) tidak dapat diurutkan
+                    ],
+                });
+            });
+        </script>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"
+        ></script>
+        <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>
+    </body>
 </html>
