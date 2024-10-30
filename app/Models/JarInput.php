@@ -42,6 +42,7 @@ class JarInput extends Model
         "resource_path",
         "number_of_clusters",
         "number_of_stages",
+        "generated_code",
         "user_id",
         "status",
         "expired",

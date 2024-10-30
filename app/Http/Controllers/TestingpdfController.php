@@ -3,18 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
-use App\Http\Controllers\ResponseController;
-use App\Http\Controllers\MessagesController;
-use App\Models\JarInput;
 use Illuminate\Http\Request;
-use Yajra\DataTables\Facades\DataTables;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Log; 
-use Carbon\Carbon;
-use Symfony\Component\Process\Exception\ProcessFailedException;
-use Symfony\Component\Process\Process;
-use Illuminate\Support\Facades\File;
 use Smalot\PdfParser\Parser;
 
 class TestingpdfController extends Controller
@@ -24,67 +13,59 @@ class TestingpdfController extends Controller
         return view('upload-pdf');
     }
 
-    // Menangani proses upload dan konversi
+    // Handle PDF upload and conversion
     public function handleUpload(Request $request)
     {
-        // Validasi file yang diunggah
+        // Validate the uploaded file
         $request->validate([
-            'pdf' => 'required|mimes:pdf|max:4096', // Maksimal 4MB
+            'pdf' => 'required|mimes:pdf|max:4096', // Max 4MB
         ]);
 
-        // Ambil file yang diunggah
+        // Get the uploaded file
         $file = $request->file('pdf');
 
-        // Membaca isi file PDF tanpa menyimpannya
+        // Parse PDF content without saving the file
         $parser = new Parser();
         $pdf = $parser->parseContent(file_get_contents($file->getRealPath()));
         $text = $pdf->getText();
 
-        // Proses teks untuk diubah menjadi JSON berdasarkan nomor soal
-        // Asumsikan setiap soal diawali dengan nomor, misalnya "1.", "2.", dst.
-
+        // Process the text to extract questions based on numbering
         $questions = $this->extractQuestions($text);
 
-        // Mengembalikan JSON sebagai respons
+        // Return JSON response
         return response()->json($questions);
     }
 
-    // Fungsi untuk mengekstrak soal berdasarkan nomor
+    // Function to extract questions based on numbering
     private function extractQuestions($text)
     {
-        // Gunakan regex untuk menemukan pola nomor soal
-        // Misalnya, soal diawali dengan angka diikuti titik dan spasi: "1. ", "2. ", dll.
-
-        // Split teks berdasarkan pola nomor soal
-        $pattern = '/\n\s*\d+\.\s+/'; // Menemukan awal soal
-
-        // Tambahkan pembatas agar explode bekerja
+        // Add boundaries for regex to work properly
         $text = "\n" . $text;
 
-        // Pecah teks menjadi array soal
-        $parts = preg_split($pattern, $text);
+        // Regular expression to capture main numbered questions like "1. ", "2. ", etc.
+        $pattern = '/\n(\d+)\.\s+/';
 
-        // Hapus elemen pertama jika kosong atau bukan soal
-        if (isset($parts[0]) && trim($parts[0]) === '') {
-            array_shift($parts);
-        }
+        // Split text by the pattern to get the individual questions
+        $parts = preg_split($pattern, $text, -1, PREG_SPLIT_DELIM_CAPTURE);
 
-        // Kumpulkan soal dalam array asosiatif
+        // Initialize an array to hold questions
         $questions = [];
-        foreach ($parts as $index => $part) {
-            $number = $index + 1;
-            $questionText = trim($part);
-            if ($questionText !== '') {
-                $questions[] = [
-                    'number' => $number,
-                    'question' => $questionText,
-                ];
-            }
+        $currentQuestion = null;
+
+        for ($i = 1; $i < count($parts); $i += 2) {
+            $number = $parts[$i]; // This captures the question number (1, 2, 3, etc.)
+            $questionText = trim($parts[$i + 1]); // This captures the question text
+
+            // Clean up the question text by removing unnecessary line breaks and multiple spaces
+            $cleanedText = preg_replace('/\s+/', ' ', $questionText);
+
+            // Append the question text to the array
+            $questions[] = [
+                'number' => (int)$number,
+                'question' => $cleanedText
+            ];
         }
 
         return $questions;
     }
-
-
-
 }

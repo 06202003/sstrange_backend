@@ -466,20 +466,7 @@
                 </table>
             </div>
         </div>  -->
-        <script>
-            $(document).ready(function () {
-                $("#sumtablecontentdissimai").DataTable({
-                    columnDefs: [
-                        { orderable: false, targets: 3 }, // Kolom ke-4 (Action) tidak dapat diurutkan
-                    ],
-                });
-                $("#sumtablecontent").DataTable({
-                    columnDefs: [
-                        { orderable: false, targets: 3 }, // Kolom ke-4 (Action) tidak dapat diurutkan
-                    ],
-                });
-            });
-        </script>
+
         <script
             src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
             integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
@@ -492,5 +479,34 @@
             crossorigin="anonymous"
         ></script>
         <script src="https://cdn.datatables.net/2.1.3/js/dataTables.js"></script>
+        <script>
+            $(document).ready(function () {
+                $("#sumtablecontentdissimai").DataTable({
+                    pageLength: 5, // Membatasi jumlah baris yang ditampilkan menjadi 5 secara default
+                    lengthMenu: [5, 10, 25, 50, 100], // Menambahkan opsi "5" ke dropdown "Entries per page"
+                    columnDefs: [
+                        { orderable: false, targets: 3 }, // Kolom ke-4 (Action) tidak dapat diurutkan
+                    ],
+                });
+                $("#sumtablecontent").DataTable({
+                    pageLength: 5, // Membatasi jumlah baris yang ditampilkan menjadi 5 secara default
+                    lengthMenu: [5, 10, 25, 50, 100], // Menambahkan opsi "5" ke dropdown "Entries per page"
+                    columnDefs: [
+                        { orderable: false, targets: 3 }, // Kolom ke-4 (Action) tidak dapat diurutkan
+                    ],
+                });
+            });
+        </script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Mendapatkan semua tombol di halaman
+                var buttons = document.querySelectorAll("button");
+
+                // Menambahkan kelas 'btn' dan 'btn-primary' ke setiap tombol
+                buttons.forEach(function (button) {
+                    button.classList.add("btn", "btn-primary");
+                });
+            });
+        </script>
     </body>
 </html>

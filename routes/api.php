@@ -89,11 +89,12 @@ Route::group([
     'prefix' => $url,
     'middleware' => 'jwt.verify'
 ], function ($router) {
-    $router->get('/form', [JarInputController::class, 'index']);
+    $router->get('/form', [JarInputController::class, 'getAll']);
     $router->get('/download/{filename}', [JarInputController::class, 'download']);
     $router->get('/form/datatable', [JarInputController::class, 'getAllDataTable']);
     $router->get('/form/{guid}', [JarInputController::class, 'getData']);
     $router->post('/form', [JarInputController::class, 'insertData']);
+    $router->post('/updateform', [JarInputController::class, 'updateData']);
     $router->delete('/form/{guid}', [JarInputController::class, 'deleteData']);
 });
 
