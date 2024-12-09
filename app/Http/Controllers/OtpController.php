@@ -57,8 +57,8 @@ class OtpController extends Controller
             'Messages' => [
                 [
                     'From' => [
-                        'Email' => '2172028@maranatha.ac.id',
-                        'Name' => 'Surpay'
+                        'Email' => '2172003@maranatha.ac.id',
+                        'Name' => 'Yehezkiel David'
                     ],
                     'To' => [
                         [
@@ -66,7 +66,7 @@ class OtpController extends Controller
                             'Name' => $user->name
                         ]
                     ],
-                    'TemplateID' => 5706872,
+                    'TemplateID' => 6543344,
                     'TemplateLanguage' => true,
                     'Subject' => 'OTP Reset Password',
                     'Variables' => json_decode('{
@@ -132,8 +132,8 @@ class OtpController extends Controller
             'Messages' => [
                 [
                     'From' => [
-                        'Email' => '2172028@maranatha.ac.id',
-                        'Name' => 'Surpay'
+                        'Email' => '2172003@maranatha.ac.id',
+                        'Name' => 'Oscar Karnalim'
                     ],
                     'To' => [
                         [
@@ -141,9 +141,9 @@ class OtpController extends Controller
                             'Name' => $user->name
                         ]
                     ],
-                    'TemplateID' => 5964497,
+                    'TemplateID' => 6543344,
                     'TemplateLanguage' => true,
-                    'Subject' => 'Verify Email',
+                    'Subject' => 'SSTRANGE Account Verification for '. $firstname,
                     'Variables' => json_decode('{
                             "title": "Email Verification",
                             "firstname": "' . $firstname . '",

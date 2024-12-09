@@ -1,319 +1,384 @@
 <html>
-	<head>
-		<title> Dissimilarity of @codepath1 </title>
-		<link rel="icon" href="strange_html_layout_additional_files/icon.png">
-		<!-- Google Prettify to generate highlight https://github.com/google/code-prettify -->
-		<!-- <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script> -->
-		<script src="strange_html_layout_additional_files/run_prettify.js"></script>
-		<script>
-			/* for tabbed view. copied and modified from https://www.w3schools.com/howto/howto_js_tabs.asp */
-			function construct(){
-				// invoke the first code panel so that it is displayed
-				document.getElementById("origbutton").click();
-			}
-			// function to change tab
-			function openTab(evt, tabName, tableId) {
-			  // Declare all variables
-			  var i, tabcontent, tablinks;
-			  // Get all elements with class="tabcontent" and hide them
-			  tabcontent = document.getElementsByClassName("tabcontent");
-			  for (i = 0; i < tabcontent.length; i++) {
-			    tabcontent[i].style.display = "none";
-			  }
-			  // Get all elements with class="tablinks" and remove the class "active"
-			  tablinks = document.getElementsByClassName("tablinks");
-			  for (i = 0; i < tablinks.length; i++) {
-			    tablinks[i].className = tablinks[i].className.replace(" active", "");
-			  }
-			  // Show the current tab, and add an "active" class to the button that opened the tab
-			  document.getElementById(tabName).style.display = "block";
-			  evt.currentTarget.className += " active";
-			}
-		</script>
-		<style>
-			body{
-				font-family: "Times New Roman", Times, serif;
-				font-size: 14px;
-			}
-			a{
-				text-decoration: none;
-				color: black;
-			}
+    <head>
+        <title>Dissimilarity of @codepath1</title>
+        <link
+            rel="icon"
+            href="../strange_html_layout_additional_files/icon.png"
+        />
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap"
+            rel="stylesheet"
+        />
+        <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+            rel="stylesheet"
+            integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH"
+            crossorigin="anonymous"
+        />
+        <!-- Google Prettify to generate highlight https://github.com/google/code-prettify -->
+        <!-- <script src="https://cdn.jsdelivr.net/gh/google/code-prettify@master/loader/run_prettify.js"></script> -->
+        <script src="../strange_html_layout_additional_files/run_prettify.js"></script>
+        <script>
+            /* for tabbed view. copied and modified from https://www.w3schools.com/howto/howto_js_tabs.asp */
+            function construct() {
+                // invoke the first code panel so that it is displayed
+                document.getElementById("origbutton").click();
+            }
+            // function to change tab
+            function openTab(evt, tabName, tableId) {
+                // Declare all variables
+                var i, tabcontent, tablinks;
+                // Get all elements with class="tabcontent" and hide them
+                tabcontent = document.getElementsByClassName("tabcontent");
+                for (i = 0; i < tabcontent.length; i++) {
+                    tabcontent[i].style.display = "none";
+                }
+                // Get all elements with class="tablinks" and remove the class "active"
+                tablinks = document.getElementsByClassName("tablinks");
+                for (i = 0; i < tablinks.length; i++) {
+                    tablinks[i].className = tablinks[i].className.replace(
+                        " active",
+                        ""
+                    );
+                }
+                // Show the current tab, and add an "active" class to the button that opened the tab
+                document.getElementById(tabName).style.display = "block";
+                evt.currentTarget.className += " active";
+            }
+        </script>
+        <style>
+            body {
+                font-family: "Montserrat", sans-serif;
+                font-size: 14px;
+            }
+            a {
+                text-decoration: none;
+                color: black;
+            }
 
-			/* copied and modified from https://www.w3schools.com/css/css3_buttons.asp */
-			button {
-				background-color: rgba(0,140,186,1);
-				border: none;
-				color: white;
-				padding: 2px 4px;
-				text-align: center;
-				text-decoration: none;
-				display: inline-block;
-				cursor: pointer;
-			}
-			/* ===*/
+            /* copied and modified from https://www.w3schools.com/css/css3_buttons.asp */
+            button {
+                background-color: rgba(0, 140, 186, 1);
+                border: none;
+                color: white;
+                padding: 2px 4px;
+                text-align: center;
+                text-decoration: none;
+                display: inline-block;
+                cursor: pointer;
+            }
+            /* ===*/
 
-			/* for info panel at top */
-			div.settingpanel{
-				float:left;
-				width:100%;
-			}
+            /* for info panel at top */
+            div.settingpanel {
+                float: left;
+                width: 100%;
+            }
 
-			/* for code view */
-			div.codeview{
-				float:left;
-				width: 100%;
-				height:90%;
-				margin-top:-10px;
-			}
-			pre{
-				tab-size: 2;
-				overflow: auto;
-				width: 100%;
-				height:100%;
-				float:left;
-			}
-			.syntaxsim{
-				background-color:rgba(244,211,214,1);
-			}
-			/* copied from https://stackoverflow.com/questions/8399547/how-to-add-line-numbers-to-all-lines-in-google-prettify
+            /* for code view */
+            div.codeview {
+                float: left;
+                width: 100%;
+                height: 90%;
+                margin-top: -10px;
+            }
+            pre {
+                tab-size: 2;
+                overflow: auto;
+                width: 100%;
+                height: 100%;
+                float: left;
+            }
+            .syntaxsim {
+                background-color: rgba(244, 211, 214, 1);
+            }
+            /* copied from https://stackoverflow.com/questions/8399547/how-to-add-line-numbers-to-all-lines-in-google-prettify
 			 to make each line numbered */
-			.linenums li {
-					list-style-type: decimal;
-			}
-			/* ===*/
+            .linenums li {
+                list-style-type: decimal;
+            }
+            /* ===*/
 
-			/* for tabbed view. copied and modified from https://www.w3schools.com/howto/howto_js_tabs.asp */
-			.tab {
-			  float:left;
-				width:100%;
-				background-color: rgba(0,140,186,1);
-			}
-			button.tablinks {
-				border:none;
-				outline: none;
-			  float: left;
-			  cursor: pointer;
-			  padding: 6px 20px;
-				height:30px;
-			  transition: 0.3s;
-			}
-			.tab button:hover {
-			  background-color: rgba(20,160,206,1);
-			}
-			.tab button.active {
-			  background-color: rgba(40,180,226,1);
-			}
-			div.tabcontent {
-				float:left;
-				width:99%;
-				height:80%;
-				display: none;
-				border-top: none;
-			}
+            /* for tabbed view. copied and modified from https://www.w3schools.com/howto/howto_js_tabs.asp */
+            .tab {
+                float: left;
+                width: 100%;
+                background-color: rgba(0, 140, 186, 1);
+            }
+            button.tablinks {
+                border: none;
+                outline: none;
+                float: left;
+                cursor: pointer;
+                padding: 6px 20px;
+                height: 30px;
+                transition: 0.3s;
+            }
+            .tab button:hover {
+                background-color: rgba(20, 160, 206, 1);
+            }
+            .tab button.active {
+                background-color: rgba(40, 180, 226, 1);
+            }
+            div.tabcontent {
+                float: left;
+                width: 99%;
+                height: 80%;
+                display: none;
+                border-top: none;
+            }
 
-			span.infotitle{
-				margin-top:10px;
-				float:left;
-				width: 98%;
-				height:4%;
-				font-size: 14px;
-				font-weight: bold;
-			}
+            span.infotitle {
+                margin-top: 10px;
+                float: left;
+                width: 98%;
+                height: 4%;
+                font-size: 14px;
+                font-weight: bold;
+            }
 
-			/* for table, copied and modified from https://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_intro*/
-			div.tablecontainer{
-				float:left;
-				width: 100%;
-				height:40%;
-			}
-			div.tableheader{
-				float:left;
-				width: 100%;
-				height:20%;
-				margin-bottom:-10px;
-			}
-			div.tablecontentcontainer{
-				float:left;
-				width: 100%;
-				height:80%;
-				overflow-y:scroll;
-				overflow-x: hidden;
-				border: 1px solid #dddddd;
-			}
-			table {
-				width:100%;
-			  font-family: inherit;
-				font-size: inherit;
-			  border-collapse: collapse;
-			}
-			table.header {
-				width:97.5%;
-			}
-			td, th {
-			  border: 1px solid #dddddd;
-			  text-align: center;
-			}
-			td{
-				width:20%;
-				padding: 2px;
-			}
-			th{
-				border-top: none;
-				background-color: rgba(0,140,186,1);
-				color: white;
-				padding: 4px 8px;
-				text-align: center;
-				text-decoration: none;
-				font-weight: normal;
-				width:20%;
-				height:100%;
-				cursor: pointer;
-			}
-			tr:nth-child(even) {
-			  background-color: #eeeeee;
-			}
-			tr{
-				cursor: pointer;
-			}
+            /* for table, copied and modified from https://www.w3schools.com/html/tryit.asp?filename=tryhtml_table_intro*/
+            div.tablecontainer {
+                float: left;
+                width: 100%;
+                height: 40%;
+            }
+            div.tableheader {
+                float: left;
+                width: 100%;
+                height: 20%;
+                margin-bottom: -10px;
+            }
+            div.tablecontentcontainer {
+                float: left;
+                width: 100%;
+                height: 80%;
+                overflow-y: scroll;
+                overflow-x: hidden;
+                border: 1px solid #dddddd;
+            }
+            table {
+                width: 100%;
+                font-family: inherit;
+                font-size: inherit;
+                border-collapse: collapse;
+            }
+            table.header {
+                width: 97.5%;
+            }
+            td,
+            th {
+                border: 1px solid #dddddd;
+                text-align: center;
+            }
+            td {
+                width: 20%;
+                padding: 2px;
+            }
+            th {
+                border-top: none;
+                background-color: rgba(0, 140, 186, 1);
+                color: white;
+                padding: 4px 8px;
+                text-align: center;
+                text-decoration: none;
+                font-weight: normal;
+                width: 20%;
+                height: 100%;
+                cursor: pointer;
+            }
+            tr:nth-child(even) {
+                background-color: #eeeeee;
+            }
+            tr {
+                cursor: pointer;
+            }
 
-			div.explanation{
-				float:left;
-				width: 100%;
-				height:45.5%;
-				border: 1px solid #aaaaaa;
-				overflow-y:auto;
-				overflow-x:hidden;
-			}
-			div.explanationcontent{
-				float:left;
-				width:98%;
-				padding:1%;
-				display: none;
-				text-align: justify;
-			}
+            div.explanation {
+                float: left;
+                width: 100%;
+                height: 45.5%;
+                border: 1px solid #aaaaaa;
+                overflow-y: auto;
+                overflow-x: hidden;
+            }
+            div.explanationcontent {
+                float: left;
+                width: 98%;
+                padding: 1%;
+                display: none;
+                text-align: justify;
+            }
 
-			/* only for summary table which only has 4 columns instead of 5 */
-			th.thsum{
-				width:25%;
-			}
-			td.tdsum{
-				width:25%;
-			}
+            /* only for summary table which only has 4 columns instead of 5 */
+            th.thsum {
+                width: 25%;
+            }
+            td.tdsum {
+                width: 25%;
+            }
 
-			/* only for table inside the explanation */
-			td.inexplanation, th.inexplanation {
-			  border: 1px solid black;
-			  text-align: center;
-			  padding: 0;
-			  height:16px;
-			  font-size: 12px;
-			}
-			th.inexplanation{
-				border: 1px solid black;
-				background-color: white;
-				color: black;
-				width:20%;
-				cursor: none;
-				font-weight:bold;
-			}
-			tr.inexplanation:nth-child(even) {
-			  background-color: white;
-			}
-			tr.inexplanation{
-				cursor: default;
-				padding: 0;
-				height:16px;
-				font-size: 12px;
-			}
-			img.sortpic{
-				float:right;
-				width:12px;
-				margin-bottom:0px;
-			}
-			
-			div.embeddiv{
-				float:left;
-				width:100%;
-				margin-bottom:10px;
-			}
-			div.embedimage{
-				float:left;
-				margin-right:20px;
-			}
-			div.embedx{
-				float:left;
-				font-size:24px;
-				margin-top:10px;
-				margin-left:5px;
-				margin-right:5px;
-			}
-			img.embedimage{
-				float:left;
-				height:50px;
-			}
-			a.embedbutton{
-				font-size:16px;
-				border:none;
-				outline: none;
-				float: left;
-				cursor: pointer;
-				padding: 10px 20px;
-				padding-bottom:0px;
-				height:30px;
-				transition: 0.3s;
-				background-color: rgba(0,140,186,1);
-				color: white;
-				margin-top:5px;
-				text-decoration: none;
-			}
-			a.embedbutton:hover {
-			  background-color: rgba(20,160,206,1);
-			}
-			a.embedactive {
-			  background-color: rgba(40,180,226,1);
-			}
-			hr{
-				margin-bottom:10px;
-			}
-			
-			div.header{
-				float:left;
-				font-size:20px;
-				font-weight:bold;
-				margin-top:15px;
-			}
+            /* only for table inside the explanation */
+            td.inexplanation,
+            th.inexplanation {
+                border: 1px solid black;
+                text-align: center;
+                padding: 0;
+                height: 16px;
+                font-size: 12px;
+            }
+            th.inexplanation {
+                border: 1px solid black;
+                background-color: white;
+                color: black;
+                width: 20%;
+                cursor: none;
+                font-weight: bold;
+            }
+            tr.inexplanation:nth-child(even) {
+                background-color: white;
+            }
+            tr.inexplanation {
+                cursor: default;
+                padding: 0;
+                height: 16px;
+                font-size: 12px;
+            }
+            img.sortpic {
+                float: right;
+                width: 12px;
+                margin-bottom: 0px;
+            }
 
-			div.columndiv{
-				float:left;
-				width: 100%;
-			}
+            div.embeddiv {
+                float: left;
+                width: 100%;
+                margin-bottom: 10px;
+            }
+            div.embedimage {
+                float: left;
+                margin-right: 20px;
+            }
+            div.embedx {
+                float: left;
+                font-size: 24px;
+                margin-top: 10px;
+                margin-left: 5px;
+                margin-right: 5px;
+            }
+            img.embedimage {
+                float: left;
+                height: 50px;
+            }
+            a.embedbutton {
+                font-size: 16px;
+                border: none;
+                outline: none;
+                float: left;
+                cursor: pointer;
+                padding: 10px 20px;
+                padding-bottom: 0px;
+                height: 30px;
+                transition: 0.3s;
+                background-color: rgba(0, 140, 186, 1);
+                color: white;
+                margin-top: 5px;
+                text-decoration: none;
+            }
+            a.embedbutton:hover {
+                background-color: rgba(20, 160, 206, 1);
+            }
+            a.embedactive {
+                background-color: rgba(40, 180, 226, 1);
+            }
+            hr {
+                margin-bottom: 10px;
+            }
 
-		</style>
-	</head>
-	<body onload="construct()">
-		<div class="settingpanel">
-			<div class="embeddiv"> 
-				<div class="embedimage">
-					<img class="embedimage" src="strange_html_layout_additional_files/logo.png" alt="logo STRANGE">
-				</div>
-				<div class="header"> @codepath1</div>
-			</div>
-			<hr />
+            div.header {
+                float: left;
+                font-size: 20px;
+                font-weight: bold;
+                margin-top: 15px;
+            }
 
-			<div class="tab">
-			  <button id="origbutton" class="tablinks" onclick="openTab(event, 'orig', 'origtablecontent')">Code</button>
-			  <button class="tablinks" onclick="window.open('index.html', '_self');">Back</button>
-			</div>
-		</div>
-		<div id="orig" class="tabcontent">
-			<div class="columndiv" style="margin-right:20px">
-				<span class="infotitle"> Submission: </span>
-				<div class="codeview">
-					<pre class="prettyprint linenums">@code1
-					</pre>
-				</div>
-			</div>
-		</div>
-	</body>
+            div.columndiv {
+                float: left;
+                width: 100%;
+            }
+        </style>
+    </head>
+    <body onload="construct()">
+        <div class="settingpanel">
+            <nav class="navbar navbar-expand-lg bg-body-tertiary">
+                <div class="container-fluid">
+                    <div class="row d-flex w-100 align-items-center">
+                        <div class="col-md-1">
+                            <a class="navbar-brand" href="#">
+                                <img
+                                    src="../strange_html_layout_additional_files/logo.png"
+                                    alt="logo STRANGE"
+                                    width="100"
+                                    height="50"
+                                    class="d-inline-block align-text-top"
+                                />
+                            </a>
+                        </div>
+                        <div class="col-md-11 d-flex">
+                            <div class="fs-5 fw-bold">@codepath1</div>
+                        </div>
+                    </div>
+                </div>
+            </nav>
+            <div class="row d-flex mx-1 mt-3 mb-2">
+                <div class="col-md-2 d-flex">
+                    <button
+                        id="origbutton"
+                        class="btn btn-primary me-2"
+                        style="background-color: #136871"
+                        onclick="openTab(event, 'orig', 'origtablecontent')"
+                    >
+                        Code
+                    </button>
+                    <button
+                        class="btn btn-primary"
+                        style="background-color: #3bcedf"
+                        onclick="window.open('index.html', '_self');"
+                    >
+                        Back
+                    </button>
+                </div>
+            </div>
+            <div id="orig" class="row d-flex mx-1 mt-3 mb-2">
+                <span class="infotitle"> Submission: </span>
+                <div class="col-md-12 mt-1" style="height: 80vh">
+                    <pre class="prettyprint linenums">@code1</pre>
+                </div>
+            </div>
+        </div>
+        <script
+            src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"
+            integrity="sha512-v2CJ7UaYy4JwqLDIrZUI/4hqeoQieOmAZNXBeQyjo21dadnwR+8ZaIJVT8EE2iyI61OV8e6M8PP2/4hpQINQ/g=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        ></script>
+        <script
+            src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"
+            integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz"
+            crossorigin="anonymous"
+        ></script>
+        <script>
+            document.addEventListener("DOMContentLoaded", function () {
+                // Mendapatkan semua tombol di halaman
+                var buttons = document.querySelectorAll("button");
+
+                // Menambahkan kelas 'btn' dan 'btn-primary' ke setiap tombol
+                buttons.forEach(function (button) {
+                    button.classList.add("btn", "w-100");
+                });
+            });
+        </script>
+    </body>
 </html>

@@ -8,6 +8,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\FormController;
 use App\Http\Controllers\JarInputController;
 use App\Http\Controllers\ParkingLotController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\TestingpdfController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\UserFormController;
@@ -71,7 +72,7 @@ Route::group([
     'middleware' => 'jwt.verify'
 ], function ($router) {
     $router->get('/self', [UserController::class, 'index']);
-    // $router->put('/update', [ProfileController::class, 'updateUser']);
+
     $router->put('/change-password', [PasswordController::class, 'changePassword']);
     // $router->put('/update-fcm-token', [FcmController::class, 'updateFcmToken']);
     $router->get('/', [UserController::class, 'showData']);
@@ -89,6 +90,7 @@ Route::group([
     'prefix' => $url,
     'middleware' => 'jwt.verify'
 ], function ($router) {
+    $router->put('/updateuser', [ProfileController::class, 'updateUser']);
     $router->get('/form', [JarInputController::class, 'getAll']);
     $router->get('/download/{filename}', [JarInputController::class, 'download']);
     $router->get('/form/datatable', [JarInputController::class, 'getAllDataTable']);

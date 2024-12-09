@@ -114,7 +114,9 @@ class AuthController extends Controller
         ], MessagesController::messages());
 
         if ($validator->fails()) {
-            return ResponseController::getResponse(null, 422, $validator->errors()->first());
+            return ResponseController::getResponse(
+                null, 422, 
+                $validator->errors()->first());
         }
 
         $user = User::where([
@@ -123,15 +125,21 @@ class AuthController extends Controller
             ->first();
 
         if (empty($user)) {
-            return ResponseController::getResponse(null, 400, "User Not Found");
+            return ResponseController::getResponse(
+                null, 400, 
+                "User Not Found");
         }
 
         if (!Hash::check($request->get('password'), $user->password)) {
-            return ResponseController::getResponse(null, 400, "Invalid Credentials");
+            return ResponseController::getResponse(
+                null, 400, 
+                "Invalid Credentials");
         }
 
         if (empty($user->email_verified_at)) {
-            return ResponseController::getResponse(null, 400, "Email Not Verify");
+            return ResponseController::getResponse(
+                null, 400, 
+                "Email Not Verify");
         }
         $payloadable = [
             'user_id' => $user->id,
@@ -146,31 +154,49 @@ class AuthController extends Controller
             "access_token" => $token,
         ];
 
-        return ResponseController::getResponse($respone, 200, 'Login Success');
+        return ResponseController::getResponse(
+            $respone, 200, 
+            'Login Success');
     }
     public function register(Request $request)
     {
-        
+        // Validasi input form
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users', 
+            'email' => [
+                'required',
+                'string',
+                'email',
+                'max:255',
+                'unique:users',
+                // Validasi regex untuk email dengan domain yang diperbolehkan dan tidak ada angka di bagian depan
+                'regex:/^[a-zA-Z]+(\.[a-zA-Z]+)*@(maranatha\.ac\.id|it\.maranatha\.edu)$/', 
+                'regex:/^[a-zA-Z]+(\.[a-zA-Z]+)*@(?!student\.it\.maranatha\.edu$)/', // Tidak boleh domain student.it.maranatha.edu
+            ],
             'phone_number' => 'required|string',
             'password' => 'required|string|min:6',
-        ], MessagesController::messages());
-
+        ], [
+            'email.regex' => 'Email harus menggunakan domain maranatha.ac.id atau it.maranatha.edu, dan bagian depan tidak boleh hanya angka.',
+            'email.unique' => 'Email sudah terdaftar.',
+        ]);
+    
+        // Cek jika validasi gagal
         if ($validator->fails()) {
             return ResponseController::getResponse(null, 422, $validator->errors()->first());
         }
-
+    
+        // Jika validasi sukses, buat pengguna baru
         $user = User::create([
             'name' => $request->name,
             'email' => $request->email,
             'phone_number' => $request->phone_number,
             'password' => Hash::make($request->password),
         ]);
-
-        return ResponseController::getResponse($user, 200, 'User Create Successfully');
+    
+        // Return response sukses
+        return ResponseController::getResponse($user, 200, 'User Created Successfully');
     }
+    
 
     public function logout()
     {

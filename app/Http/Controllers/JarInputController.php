@@ -93,7 +93,7 @@ class JarInputController extends Controller
         if ($validator->fails()) {
             return response()->json([
                 'error' => 'Ada Kesalahan atau Form Input yang Belum Terisi',
-                'details' => $validator->errors() // Menyertakan detail error jika diperlukan
+                'details' => $validator->errors()
             ], 422);
         }
         
@@ -102,8 +102,8 @@ class JarInputController extends Controller
             if ($request->hasFile('zip_file_path') && empty($request->input('dir_file_path'))) {
                 $file = $request->file('zip_file_path');
                 $originalFileName = $file->getClientOriginalName();
-                $fileNameOnly = pathinfo($originalFileName, PATHINFO_FILENAME); // Get filename without extension
-                $zipFileDirectory = storage_path('app/public/uploads/' . $fileNameOnly); // Folder tujuan hasil ekstraksi
+                $fileNameOnly = pathinfo($originalFileName, PATHINFO_FILENAME); 
+                $zipFileDirectory = storage_path('app/public/uploads/' . $fileNameOnly); 
                 $zipFilePath = $zipFileDirectory . DIRECTORY_SEPARATOR . $originalFileName;
             
                 // Buat direktori tujuan jika belum ada
@@ -145,10 +145,15 @@ class JarInputController extends Controller
                 }
             
                 // Proses AI jika ada
-                if($request->hasFile('ai_generated_sample')){
+                if (!empty($request->input('ai_generated_sample'))) {
+                    // Input AI directory path
                     $inputAiPath = $request->input('ai_generated_sample');
+            
+                    // Create the corresponding directory in public storage
                     $lastAIDirectory = basename($inputAiPath);
                     $publicAIPath = storage_path('app/public/uploads/' . $lastAIDirectory);
+            
+                    // Copy all contents from input directory to public storage directory
                     if (File::copyDirectory($inputAiPath, $publicAIPath)) {
                         Log::info('Directory copied to: ' . $publicAIPath);
                     } else {
@@ -204,7 +209,7 @@ class JarInputController extends Controller
                     $data->similarity_measurement,
                     $data->resource_path,
                     $data->dissim_threshold,
-                    $data->ai_generated_sample ?? "none",
+                    $data->ai_generated_sample,
                     $data->number_of_clusters,
                     $data->number_of_stages
                 );
@@ -245,10 +250,10 @@ class JarInputController extends Controller
                     return response()->json(['error' => 'Failed to copy directory'], 500);
                 }
 
-                if($request->hasFile('ai_generated_sample')){
+                if (!empty($request->input('ai_generated_sample'))) {
                     // Input AI directory path
                     $inputAiPath = $request->input('ai_generated_sample');
-        
+            
                     // Create the corresponding directory in public storage
                     $lastAIDirectory = basename($inputAiPath);
                     $publicAIPath = storage_path('app/public/uploads/' . $lastAIDirectory);
@@ -260,7 +265,7 @@ class JarInputController extends Controller
                         Log::error('Failed to copy directory to: ' . $publicAIPath);
                         return response()->json(['error' => 'Failed to copy directory'], 500);
                     }
-                }else{
+                } else {
                     $publicAIPath = "none";
                 }
 
@@ -310,7 +315,7 @@ class JarInputController extends Controller
                     $data->similarity_measurement,
                     $data->resource_path,
                     $data->dissim_threshold,
-                    $data->ai_generated_sample ?? "none",
+                    $data->ai_generated_sample,
                     $data->number_of_clusters,
                     $data->number_of_stages
                 );
