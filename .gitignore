@@ -15,5 +15,5 @@ yarn-error.log
 /.fleet
 /.idea
 /.vscode
-vendor
-.env
+# vendor
+# .env
