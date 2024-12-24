@@ -139,7 +139,7 @@ class AuthController extends Controller
         if (empty($user->email_verified_at)) {
             return ResponseController::getResponse(
                 null, 400, 
-                "Email Not Verify");
+                "Email has not been verified, please contact admin");
         }
         $payloadable = [
             'user_id' => $user->id,

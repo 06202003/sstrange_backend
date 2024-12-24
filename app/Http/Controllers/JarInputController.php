@@ -47,12 +47,17 @@ class JarInputController extends Controller
             ->orderBy('created_at', 'desc')
             ->get();
 
+        // Log::debug($data);
+
         $dataTable = DataTables::of($data)
             ->addIndexColumn()
             ->make(true);
 
+
         return $dataTable;
+    
     }
+
 
     public function download($filename){
         $fileRelativePath = "uploads/" . $filename . "/" . $filename . ".zip";
