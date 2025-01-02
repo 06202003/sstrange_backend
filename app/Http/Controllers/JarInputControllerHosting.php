@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Http\Controllers\ResponseController;
 use App\Http\Controllers\MessagesController;
 use App\Models\JarInput;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Yajra\DataTables\Facades\DataTables;
 use Illuminate\Support\Facades\Validator;
@@ -16,9 +15,6 @@ use Carbon\Carbon;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\File;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use ZipArchive;
 
 class JarInputController extends Controller
 {
@@ -43,36 +39,23 @@ class JarInputController extends Controller
         return ResponseController::getResponse($data, 200, 'Success');
     }
 
-    public function getAllDataTable()
-    {
-        $this->deleteExpiredData();
-    
-        // Ambil pengguna berdasarkan GUID dari auth
-        $user = User::where('guid', auth('api')->user()->guid)->first();
+    public function getAllDataTable(){
 
-        Log::debug($user);
-    
-        if (!$user) {
-            // Jika pengguna tidak ditemukan, return kosong
-            return response()->json([
-                'data' => [],
-                'message' => 'User not found'
-            ], 404);
-        }
-    
-        // Ambil data yang sesuai dengan pengguna yang login
+        $this->deleteExpiredData();
+
         $data = JarInput::with('user')
-            ->where('user_id', $user->guid) // Gunakan ID pengguna
             ->orderBy('created_at', 'desc')
             ->get();
-    
+
+        // Log::debug($data);
+
         $dataTable = DataTables::of($data)
             ->addIndexColumn()
             ->make(true);
-    
-        Log::debug($data);
-    
+
+
         return $dataTable;
+    
     }
 
 
@@ -86,11 +69,69 @@ class JarInputController extends Controller
             return response()->json(['message' => 'File not found.'], 404);
         }
     }
+
+    // Di dalam controller Anda
+    public function extractZip($zipFilePath, $zipFileDirectory)
+    {
+        $zip = new \ZipArchive;
+    
+        // Membuka file ZIP utama
+        if ($zip->open($zipFilePath) === TRUE) {
+            // Folder tujuan untuk ekstraksi adalah folder parent dari ZIP utama
+            $parentFolderPath = $zipFileDirectory;
+    
+            // Mengekstrak semua file dalam ZIP
+            for ($i = 0; $i < $zip->numFiles; $i++) {
+                $zipEntry = $zip->getNameIndex($i);
+                $entryName = basename($zipEntry); // Nama file atau folder dalam ZIP
+    
+                // Jika entry dalam ZIP adalah file ZIP nested
+                if (pathinfo($entryName, PATHINFO_EXTENSION) === 'zip') {
+                    Log::info('Nested ZIP found: ' . $entryName);
+    
+                    // Tentukan path untuk nested ZIP
+                    $nestedZipPath = $parentFolderPath . DIRECTORY_SEPARATOR . $entryName;
+    
+                    // Salin file ZIP nested ke folder parent
+                    copy("zip://" . $zipFilePath . "#" . $zipEntry, $nestedZipPath);
+    
+                    // Buat folder untuk nested ZIP berdasarkan nama file ZIP
+                    $nestedFolder = $parentFolderPath . DIRECTORY_SEPARATOR . pathinfo($entryName, PATHINFO_FILENAME);
+                    if (!File::exists($nestedFolder)) {
+                        File::makeDirectory($nestedFolder, 0755, true);
+                    }
+    
+                    // Rekursif untuk mengekstrak file ZIP nested ke dalam folder yang relevan
+                    $this->extractZip($nestedZipPath, $nestedFolder);
+                } else {
+                    // Jika entry adalah file biasa (bukan ZIP), ekstrak langsung ke folder parent
+                    $extractPath = $parentFolderPath . DIRECTORY_SEPARATOR . $entryName;
+                    if (substr($zipEntry, -1) !== '/') {
+                        copy("zip://" . $zipFilePath . "#" . $zipEntry, $extractPath);
+                        Log::info('Extracted: ' . $extractPath);
+                    }
+                }
+            }
+    
+            // Tutup file ZIP
+            $zip->close();
+            Log::info('Zip file extracted to: ' . $parentFolderPath);
+    
+            // Hapus file ZIP setelah selesai ekstraksi
+            File::delete($zipFilePath);
+            Log::info('Zip file deleted: ' . $zipFilePath);
+        } else {
+            Log::error('Failed to extract zip file.');
+            return response()->json(['error' => 'Failed to extract zip file'], 500);
+        }
+    }
+    
+    
     
 
     public function insertData(Request $request){
         $validator = Validator::make($request->all(), [
-            'zip_file_path' => 'nullable|file|mimes:zip|max:2048',
+            'zip_file_path' => 'nullable|file|mimes:zip|max:10240',
             'dir_file_path' => 'nullable|string|max:255',
             'submission_type' => 'nullable|string|max:255',
             'submission_language' => 'required|string|max:255',
@@ -101,7 +142,7 @@ class JarInputController extends Controller
             'minimum_matching_length' => 'nullable|integer',
             'template_directory_path' => 'nullable|string|max:255',
             'common_content' => 'nullable|string|max:255',
-            'ai_generated_sample' => 'nullable|string|max:255',
+            'ai_generated_sample' => 'nullable|file|mimes:zip|max:10240',
             'similarity_measurement' => 'nullable|string|max:255',
             'resource_path' => 'nullable|string|max:255',
             'number_of_clusters' => 'nullable|integer',
@@ -149,8 +190,8 @@ class JarInputController extends Controller
                     }
 
                     // Hapus data lama dari database
-                    Log::info('Existing database record deleted: ' . $existingData->id);
                     $existingData->delete();
+                    Log::info('Existing database record deleted: ' . $existingData->id);
                 }
                 
                 // Buat direktori tujuan jika belum ada
@@ -163,51 +204,62 @@ class JarInputController extends Controller
                 Log::info('Zip file saved to: ' . $zipFilePath);
             
                 // Ekstrak file ZIP tanpa membuat subfolder tambahan
-                $zip = new ZipArchive;
-                if ($zip->open($zipFilePath) === TRUE) {
-                    for ($i = 0; $i < $zip->numFiles; $i++) {
-                        $zipEntry = $zip->getNameIndex($i);
-            
-                        // Dapatkan hanya nama file tanpa path
-                        $entryName = basename($zipEntry);
-            
-                        // Tentukan path untuk file yang akan diekstrak
-                        $extractPath = $zipFileDirectory . DIRECTORY_SEPARATOR . $entryName;
-            
-                        // Jika file bukan direktori, ekstrak file tersebut
-                        if (substr($zipEntry, -1) !== '/') {
-                            copy("zip://" . $zipFilePath . "#" . $zipEntry, $extractPath);
-                            Log::info('Extracted: ' . $extractPath);
-                        }
-                    }
-                    $zip->close();
-                    Log::info('Zip file extracted to: ' . $zipFileDirectory);
-       
-                    // Hapus file ZIP setelah ekstraksi selesai
-                    File::delete($zipFilePath);
-                    Log::info('Zip file deleted: ' . $zipFilePath);
-                } else {
-                    Log::error('Failed to extract zip file.');
-                    return response()->json(['error' => 'Failed to extract zip file'], 500);
-                }
+                $this->extractZip($zipFilePath, $zipFileDirectory); 
+
             
                 // Proses AI jika ada
-                if (!empty($request->input('ai_generated_sample'))) {
-                    // Input AI directory path
-                    $inputAiPath = $request->input('ai_generated_sample');
+                if (!empty($request->file('ai_generated_sample'))) {
+                    // Input AI zip file
+                    $aiFile = $request->file('ai_generated_sample');
+                    $originalFileName = $aiFile->getClientOriginalName();
+                    $aifileNameOnly = pathinfo($originalFileName, PATHINFO_FILENAME);
+                    $aiZipFileDirectory = storage_path('app/public/uploads/' . $aifileNameOnly);
+                    Log::info($aiZipFileDirectory);
+                    $aiZipFilePath = $aiZipFileDirectory . DIRECTORY_SEPARATOR . $originalFileName;
                 
-                    // Create the corresponding directory in public storage
-                    $lastAIDirectory = basename($inputAiPath);
-                    $publicAIPath = storage_path('app/public/uploads/' . $lastAIDirectory);
-                
-                    // Copy all contents from input directory to public storage directory
-                    if (File::copyDirectory($inputAiPath, $publicAIPath)) {
-                        Log::info('Directory copied to: ' . $publicAIPath);
-                    } else {
-                        Log::error('Failed to copy directory to: ' . $publicAIPath);
-                        return response()->json(['error' => 'Failed to copy directory'], 500);
+                    // Buat direktori untuk menyimpan file ZIP jika belum ada
+                    if (!File::exists($aiZipFileDirectory)) {
+                        File::makeDirectory($aiZipFileDirectory, 0755, true);
                     }
-                }else {
+                
+                    // Pindahkan file ZIP ke direktori tujuan
+                    $aiFile->move($aiZipFileDirectory, $originalFileName);
+                    Log::info('AI ZIP file saved to: ' . $aiZipFilePath);
+                
+                    // Ekstrak file ZIP AI ke dalam direktori yang telah disiapkan
+                    $zip = new \ZipArchive;
+                    if ($zip->open($aiZipFilePath) === TRUE) {
+                        for ($i = 0; $i < $zip->numFiles; $i++) {
+                            $zipEntry = $zip->getNameIndex($i);
+                
+                            // Dapatkan hanya nama file tanpa path
+                            $entryName = basename($zipEntry);
+                
+                            // Tentukan path untuk file yang akan diekstrak
+                            $extractPath = $aiZipFileDirectory . DIRECTORY_SEPARATOR . $entryName;
+                
+                            // Jika file bukan direktori, ekstrak file tersebut
+                            if (substr($zipEntry, -1) !== '/') {
+                                copy("zip://" . $aiZipFilePath . "#" . $zipEntry, $extractPath);
+                                Log::info('Extracted AI file: ' . $extractPath);
+                            }
+                        }
+                        $zip->close();
+                        Log::info('AI zip file extracted to: ' . $aiZipFileDirectory);
+                
+                        // Hapus file ZIP setelah ekstraksi selesai
+                        File::delete($aiZipFilePath);
+                        Log::info('AI ZIP file deleted: ' . $aiZipFilePath);
+                    } else {
+                        Log::error('Failed to extract AI zip file.');
+                        return response()->json(['error' => 'Failed to extract AI zip file'], 500);
+                    }
+                
+                    // Simpan path ke dalam database
+                    $publicAIPath = $aiZipFileDirectory;
+                
+                } else {
+                    // Jika tidak ada file AI yang diupload
                     $publicAIPath = "none";
                 }
             
@@ -218,7 +270,7 @@ class JarInputController extends Controller
                 $data = JarInput::create([
                     'zip_file_path' => $zipFileDirectory, // Gunakan direktori hasil ekstraksi
                     'filename' => $fileNameOnly,
-                    'submission_type' => $request->input('submission_type'),
+                    'submission_type' => "dir",
                     'submission_language' => $request->input('submission_language'),
                     'explanation_language' => $request->input('explanation_language'),
                     'sim_threshold' => $request->input('sim_threshold'),
@@ -324,23 +376,58 @@ class JarInputController extends Controller
                     return response()->json(['error' => 'Failed to copy directory'], 500);
                 }
 
-                // Proses AI jika ada
-                if (!empty($request->input('ai_generated_sample'))) {
-                    // Input AI directory path
-                    $inputAiPath = $request->input('ai_generated_sample');
-            
-                    // Create the corresponding directory in public storage
-                    $lastAIDirectory = basename($inputAiPath);
-                    $publicAIPath = storage_path('app/public/uploads/' . $lastAIDirectory);
-            
-                    // Copy all contents from input directory to public storage directory
-                    if (File::copyDirectory($inputAiPath, $publicAIPath)) {
-                        Log::info('Directory copied to: ' . $publicAIPath);
-                    } else {
-                        Log::error('Failed to copy directory to: ' . $publicAIPath);
-                        return response()->json(['error' => 'Failed to copy directory'], 500);
+                if (!empty($request->file('ai_generated_sample'))) {
+                    // Input AI zip file
+                    $aiFile = $request->file('ai_generated_sample');
+                    $originalFileName = $aiFile->getClientOriginalName();
+                    $aifileNameOnly = pathinfo($originalFileName, PATHINFO_FILENAME);
+                    $aiZipFileDirectory = storage_path('app/public/uploads/' . $aifileNameOnly);
+                    Log::info($aiZipFileDirectory);
+                    $aiZipFilePath = $aiZipFileDirectory . DIRECTORY_SEPARATOR . $originalFileName;
+                
+                    // Buat direktori untuk menyimpan file ZIP jika belum ada
+                    if (!File::exists($aiZipFileDirectory)) {
+                        File::makeDirectory($aiZipFileDirectory, 0755, true);
                     }
+                
+                    // Pindahkan file ZIP ke direktori tujuan
+                    $aiFile->move($aiZipFileDirectory, $originalFileName);
+                    Log::info('AI ZIP file saved to: ' . $aiZipFilePath);
+                
+                    // Ekstrak file ZIP AI ke dalam direktori yang telah disiapkan
+                    $zip = new \ZipArchive;
+                    if ($zip->open($aiZipFilePath) === TRUE) {
+                        for ($i = 0; $i < $zip->numFiles; $i++) {
+                            $zipEntry = $zip->getNameIndex($i);
+                
+                            // Dapatkan hanya nama file tanpa path
+                            $entryName = basename($zipEntry);
+                
+                            // Tentukan path untuk file yang akan diekstrak
+                            $extractPath = $aiZipFileDirectory . DIRECTORY_SEPARATOR . $entryName;
+                
+                            // Jika file bukan direktori, ekstrak file tersebut
+                            if (substr($zipEntry, -1) !== '/') {
+                                copy("zip://" . $aiZipFilePath . "#" . $zipEntry, $extractPath);
+                                Log::info('Extracted AI file: ' . $extractPath);
+                            }
+                        }
+                        $zip->close();
+                        Log::info('AI zip file extracted to: ' . $aiZipFileDirectory);
+                
+                        // Hapus file ZIP setelah ekstraksi selesai
+                        File::delete($aiZipFilePath);
+                        Log::info('AI ZIP file deleted: ' . $aiZipFilePath);
+                    } else {
+                        Log::error('Failed to extract AI zip file.');
+                        return response()->json(['error' => 'Failed to extract AI zip file'], 500);
+                    }
+                
+                    // Simpan path ke dalam database
+                    $publicAIPath = $aiZipFileDirectory;
+                
                 } else {
+                    // Jika tidak ada file AI yang diupload
                     $publicAIPath = "none";
                 }
 
@@ -530,63 +617,4 @@ class JarInputController extends Controller
 
         return response()->json(['message' => 'Expired data deleted successfully.'], 200);
     }
-    
-    public function downloadDirectory(Request $request)
-    {
-        $guid = $request->input('guid');
-        $data = JarInput::where('guid', $guid)->first(); // Ambil data berdasarkan GUID
-    
-        if ($data && $data->result) {
-            // Ambil path folder dari kolom 'result'
-            $resultPath = dirname(storage_path('app/public/' . str_replace('storage/', '', $data->result)));
-            Log::debug('Folder untuk ZIP: ' . $resultPath);
-    
-            // Cek apakah path tersebut adalah direktori
-            if (is_dir($resultPath)) {
-                // Membuat ZIP
-                $zip = new ZipArchive;
-                $zipFilePath = storage_path('app/public/' . 'download_result_' . $data->filename . '.zip');
-    
-                // Cek apakah ZIP dapat dibuka untuk penulisan
-                if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
-                    // Tambahkan semua file dalam direktori ke dalam ZIP
-                    $this->addFilesToZip($zip, $resultPath);
-                    $zip->close();
-    
-                    // Kembalikan URL dari file ZIP untuk diunduh
-                    return response()->json([
-                        'zipFileUrl' => asset('storage/' . 'download_result_' . $data->filename . '.zip')
-                    ]);
-                } else {
-                    return response()->json(['error' => 'Failed to create ZIP'], 500);
-                }
-            } else {
-                Log::error('Path bukan direktori: ' . $resultPath);
-                return response()->json(['error' => 'Directory not found'], 404);
-            }
-        }
-    
-        return response()->json(['error' => 'Data not found'], 404);
-    }
-    
-    private function addFilesToZip(ZipArchive $zip, $directory)
-    {
-        // Menggunakan RecursiveIteratorIterator untuk menelusuri seluruh isi direktori
-        $files = new RecursiveIteratorIterator(
-            new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS),
-            RecursiveIteratorIterator::LEAVES_ONLY
-        );
-    
-        // Menambahkan semua file dalam direktori ke dalam ZIP
-        foreach ($files as $name => $file) {
-            if (!$file->isDir()) { // Pastikan yang ditambahkan adalah file (bukan folder)
-                $filePath = $file->getRealPath();
-                $relativePath = substr($filePath, strlen($directory) + 1); // Relative path dari file
-                Log::debug("Menambahkan file ke ZIP: {$filePath} sebagai {$relativePath}");
-                $zip->addFile($filePath, $relativePath); // Menambahkan file ke dalam ZIP dengan path relatif
-            }
-        }
-    }
-    
-    
 }

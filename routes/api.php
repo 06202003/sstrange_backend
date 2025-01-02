@@ -41,6 +41,7 @@ Route::group([
     $router->post('/login', [AuthController::class, 'login'])->name('login');
     $router->post('/login-google', [AuthController::class, 'loginGoogle'])->name('login-google');
     $router->post('/verify-google', [AuthController::class, 'verifyGoogle']);
+    $router->delete('/delete-user', [AuthController::class, 'deleteUser']);
 });
 
 /**
@@ -94,6 +95,7 @@ Route::group([
     $router->get('/form', [JarInputController::class, 'getAll']);
     $router->get('/download/{filename}', [JarInputController::class, 'download']);
     $router->get('/form/datatable', [JarInputController::class, 'getAllDataTable']);
+    $router->post('/form/download-directory', [JarInputController::class, 'downloadDirectory']);
     $router->get('/form/{guid}', [JarInputController::class, 'getData']);
     $router->post('/form', [JarInputController::class, 'insertData']);
     $router->post('/updateform', [JarInputController::class, 'updateData']);

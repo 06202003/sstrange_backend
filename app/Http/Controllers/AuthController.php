@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use PHPOpenSourceSaver\JWTAuth\Facades\JWTAuth;
 use GuzzleHttp\Client;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -160,6 +161,7 @@ class AuthController extends Controller
     }
     public function register(Request $request)
     {
+        Log::info($request);
         // Validasi input form
         $validator = Validator::make($request->all(), [
             'name' => 'required|string|max:255',
@@ -174,10 +176,11 @@ class AuthController extends Controller
                 'regex:/^[a-zA-Z]+(\.[a-zA-Z]+)*@(?!student\.it\.maranatha\.edu$)/', // Tidak boleh domain student.it.maranatha.edu
             ],
             'phone_number' => 'required|string',
-            'password' => 'required|string|min:6',
+            'password' => 'required|string|min:6|confirmed',
         ], [
             'email.regex' => 'Email harus menggunakan domain maranatha.ac.id atau it.maranatha.edu, dan bagian depan tidak boleh hanya angka.',
             'email.unique' => 'Email sudah terdaftar.',
+            'password.confirmed' => 'The master password must be the same as the confirmation',
         ]);
     
         // Cek jika validasi gagal
@@ -197,6 +200,40 @@ class AuthController extends Controller
         return ResponseController::getResponse($user, 200, 'User Created Successfully');
     }
     
+    public function deleteUser(Request $request)
+    {
+        Log::info('Attempting to delete user with GUID: ' . $request->guid);
+        // Validasi input (guid wajib)
+        $validator = Validator::make($request->all(), [
+            'guid' => 'required|exists:users,guid', // Validasi keberadaan guid di tabel users
+        ]);
+    
+        // Jika validasi gagal, kembalikan pesan error
+        if ($validator->fails()) {
+            
+            return ResponseController::getResponse(null, 422, $validator->errors()->first());
+        }
+    
+        try {
+            // Cari user berdasarkan GUID
+            $user = User::where('guid', $request->guid)->first();
+    
+            // Hapus user jika ditemukan
+            if ($user) {
+                $user->delete(); // Hapus permanen dari database
+                return ResponseController::getResponse(null, 200, 'User deleted successfully.');
+            } else {
+                Log::warning('User with GUID ' . $request->guid . ' not found.');
+                return ResponseController::getResponse(null, 404, 'User not found.');
+            }
+        } catch (\Exception $e) {
+            // Tangani error tak terduga
+            return ResponseController::getResponse(null, 500, 'An error occurred: ' . $e->getMessage());
+        }
+    }
+    
+    
+
 
     public function logout()
     {
