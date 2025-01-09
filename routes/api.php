@@ -77,6 +77,8 @@ Route::group([
     $router->put('/change-password', [PasswordController::class, 'changePassword']);
     // $router->put('/update-fcm-token', [FcmController::class, 'updateFcmToken']);
     $router->get('/', [UserController::class, 'showData']);
+    $router->get('/datatable', [UserController::class, 'getAllDataTable']);
+    $router->post('/verification', [UserController::class, 'verification']);
     $router->get('/{guid}', [UserController::class, 'getData']);
     $router->put('/', [UserController::class, 'updateData']);
     $router->delete('/{guid}', [UserController::class, 'deleteData']);

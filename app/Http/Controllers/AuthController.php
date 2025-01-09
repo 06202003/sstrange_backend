@@ -171,14 +171,10 @@ class AuthController extends Controller
                 'email',
                 'max:255',
                 'unique:users',
-                // Validasi regex untuk email dengan domain yang diperbolehkan dan tidak ada angka di bagian depan
-                'regex:/^[a-zA-Z]+(\.[a-zA-Z]+)*@(maranatha\.ac\.id|it\.maranatha\.edu)$/', 
-                'regex:/^[a-zA-Z]+(\.[a-zA-Z]+)*@(?!student\.it\.maranatha\.edu$)/', // Tidak boleh domain student.it.maranatha.edu
             ],
             'phone_number' => 'required|string',
             'password' => 'required|string|min:6|confirmed',
         ], [
-            'email.regex' => 'Email harus menggunakan domain maranatha.ac.id atau it.maranatha.edu, dan bagian depan tidak boleh hanya angka.',
             'email.unique' => 'Email sudah terdaftar.',
             'password.confirmed' => 'The master password must be the same as the confirmation',
         ]);

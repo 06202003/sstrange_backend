@@ -15,6 +15,9 @@ use Carbon\Carbon;
 use Symfony\Component\Process\Exception\ProcessFailedException;
 use Symfony\Component\Process\Process;
 use Illuminate\Support\Facades\File;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ZipArchive;
 
 class JarInputController extends Controller
 {
@@ -617,4 +620,63 @@ class JarInputController extends Controller
 
         return response()->json(['message' => 'Expired data deleted successfully.'], 200);
     }
+
+    
+    public function downloadDirectory(Request $request)
+    {
+        $guid = $request->input('guid');
+        $data = JarInput::where('guid', $guid)->first(); // Ambil data berdasarkan GUID
+    
+        if ($data && $data->result) {
+            // Ambil path folder dari kolom 'result'
+            $resultPath = dirname(storage_path('app/public/' . str_replace('storage/', '', $data->result)));
+            Log::debug('Folder untuk ZIP: ' . $resultPath);
+    
+            // Cek apakah path tersebut adalah direktori
+            if (is_dir($resultPath)) {
+                // Membuat ZIP
+                $zip = new ZipArchive;
+                $zipFilePath = storage_path('app/public/' . 'download_result_' . $data->filename . '.zip');
+    
+                // Cek apakah ZIP dapat dibuka untuk penulisan
+                if ($zip->open($zipFilePath, ZipArchive::CREATE) === TRUE) {
+                    // Tambahkan semua file dalam direktori ke dalam ZIP
+                    $this->addFilesToZip($zip, $resultPath);
+                    $zip->close();
+    
+                    // Kembalikan URL dari file ZIP untuk diunduh
+                    return response()->json([
+                        'zipFileUrl' => asset('storage/' . 'download_result_' . $data->filename . '.zip')
+                    ]);
+                } else {
+                    return response()->json(['error' => 'Failed to create ZIP'], 500);
+                }
+            } else {
+                Log::error('Path bukan direktori: ' . $resultPath);
+                return response()->json(['error' => 'Directory not found'], 404);
+            }
+        }
+    
+        return response()->json(['error' => 'Data not found'], 404);
+    }
+    
+    private function addFilesToZip(ZipArchive $zip, $directory)
+    {
+        // Menggunakan RecursiveIteratorIterator untuk menelusuri seluruh isi direktori
+        $files = new RecursiveIteratorIterator(
+            new RecursiveDirectoryIterator($directory, RecursiveDirectoryIterator::SKIP_DOTS),
+            RecursiveIteratorIterator::LEAVES_ONLY
+        );
+    
+        // Menambahkan semua file dalam direktori ke dalam ZIP
+        foreach ($files as $name => $file) {
+            if (!$file->isDir()) { // Pastikan yang ditambahkan adalah file (bukan folder)
+                $filePath = $file->getRealPath();
+                $relativePath = substr($filePath, strlen($directory) + 1); // Relative path dari file
+                Log::debug("Menambahkan file ke ZIP: {$filePath} sebagai {$relativePath}");
+                $zip->addFile($filePath, $relativePath); // Menambahkan file ke dalam ZIP dengan path relatif
+            }
+        }
+    }
+    
 }

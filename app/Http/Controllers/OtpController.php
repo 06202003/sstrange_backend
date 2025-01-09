@@ -218,6 +218,7 @@ class OtpController extends Controller
             return ResponseController::getResponse(null, 404, 'Wrong OTP');
         }
         $otp->delete();
+        
         $user->email_verified_at = Carbon::now();
         $user->save();
         return ResponseController::getResponse(null, 200, 'Success');
