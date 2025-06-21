@@ -55,6 +55,7 @@ Route::group([
     $router->post('forgot-password/validate-otp', [OtpController::class, 'validateOtp']);
     $router->post('/check-otp', [OtpController::class, 'checkOtp']);
     $router->post('/send-otp', [OtpController::class, 'verificationOtp']);
+    $router->post('/send-reminder', [OtpController::class, 'sendReminderEmail']);
     $router->post('/reset-password', [PasswordController::class, 'resetPassword']);
 });
 

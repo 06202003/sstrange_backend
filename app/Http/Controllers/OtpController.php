@@ -162,6 +162,71 @@ class OtpController extends Controller
         return ResponseController::getResponse($data, 200, 'Success');
     }
 
+    public function sendReminderEmail(Request $request): JsonResponse
+    {
+    // Validasi input request
+    $validator = Validator::make($request->all(), [
+        'email' => 'required|email',
+    ], MessagesController::messages());
+
+    if ($validator->fails()) {
+        return ResponseController::getResponse(null, 422, $validator->errors()->first());
+    }
+
+    // Cari user berdasarkan email
+    $user = User::where('email', $request->get('email'))->first();
+
+    if ($user === null) {
+        return ResponseController::getResponse(null, 404, 'User Not Found');
+    }
+
+    // Tentukan nama depan dari user
+    $firstname = strtok($user->name, " ");
+    Log::info($firstname);
+    // Kirim email reminder menggunakan Mailjet
+    $mj = new Client(
+        env('MAILJET_API_KEY'),
+        env('MAILJET_SECRET_KEY'),
+        true,
+        ['version' => 'v3.1']
+    );
+
+    // Body email
+    $body = [
+        'Messages' => [
+            [
+                'From' => [
+                    'Email' => '2172003@maranatha.ac.id',
+                    'Name' => 'Oscar Karnalim',
+                ],
+                'To' => [
+                    [
+                        'Email' => $user->email,
+                        'Name' => $user->name,
+                    ],
+                ],
+                'TemplateID' => 6621241,
+                'TemplateLanguage' => true,
+                'Subject' => 'Your email has been Verified',
+            ],
+        ],
+    ];
+
+    Log::info('Email body: ', $body);
+
+    // Kirim email melalui Mailjet
+    $response = $mj->post(Resources::$Email, ['body' => $body]);
+
+    // Cek apakah pengiriman email berhasil
+    if (!$response->success()) {
+        return ResponseController::getResponse($response->getData(), $response->getStatus(), $response->getReasonPhrase());
+    }
+
+    // Kirim response sukses
+    return ResponseController::getResponse(null, 200, 'Reminder email sent successfully');
+    }
+
+
 
     public function validateOtp(Request $request): JsonResponse
     {
